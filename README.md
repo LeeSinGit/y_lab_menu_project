@@ -27,3 +27,6 @@ python -m uvicorn main:app --reload или uvicorn main:app --reload
 ```
 #### ШАГ 7 - Прогнать сценарий в POSTMAN, должны пройти все тесты - (Passed 161);
 ****
+
+
+##### p.s. специально не прятал данные в .env и .gitignore, чтобы не возникло проблем при проверке.
