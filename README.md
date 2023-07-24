@@ -17,9 +17,9 @@ source venv/Scripts/activate
 ```
 pip install -r requirements.txt
 ```
-#### ШАГ 5 - Активировать скрипт создания таблиц в базе данных командой py create_db.py;
+#### ШАГ 5 - Перейти в директорию apo/ и активировать скрипт создания таблиц в базе данных командой py create_db.py;
 ```
-py create_db.py или python create_db.py
+cd api/                       py create_db.py или python create_db.py
 ```
 #### ШАГ 6 - Включить сервер uvicorn командой python -m uvicorn main:app --reload или uvicorn main:app --reload;
 ```
