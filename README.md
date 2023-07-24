@@ -17,7 +17,7 @@ source venv/Scripts/activate
 ```
 pip install -r requirements.txt
 ```
-#### ШАГ 5 - Активировать скрип создания таблиц в базе данных командой py create_db.py;
+#### ШАГ 5 - Активировать скрипт создания таблиц в базе данных командой py create_db.py;
 ```
 py create_db.py или python create_db.py
 ```
