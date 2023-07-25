@@ -1,9 +1,25 @@
 from typing import List
-from uuid import UUID, uuid4
+from uuid import UUID
 
+from crud import (
+    create_dish_func,
+    create_menu_func,
+    create_submenu_func,
+    delete_dish,
+    delete_menu,
+    delete_submenu,
+    get_dish_by_id,
+    get_list_dish,
+    get_list_submenu,
+    get_menu_by_id,
+    get_menu_list,
+    get_submenu_by_id,
+    put_dish,
+    put_menu,
+    put_submenu,
+)
 from database import get_db
-from fastapi import APIRouter, Depends, HTTPException, status
-from models import Dish, Menu, Submenu
+from fastapi import APIRouter, Depends, status
 from pydantic import UUID4
 from schemas import (
     DishesReturn,
@@ -13,7 +29,6 @@ from schemas import (
     SubmenuSchema2,
 )
 from sqlalchemy.orm import Session
-from sqlalchemy.orm.exc import NoResultFound
 
 
 router = APIRouter(prefix='/api/v1', tags=['CRUD'])
@@ -21,31 +36,22 @@ router = APIRouter(prefix='/api/v1', tags=['CRUD'])
 
 # Просмотр списка меню
 @router.get('/menus', response_model=List[MenuSchema])
-def get_list_menu(db: Session = Depends(get_db)):
-    menu = db.query(Menu).all()
+async def get_list_menu(db: Session = Depends(get_db)):
+    menu = await get_menu_list(db)
     return menu
 
 
 # Просмотр определенного меню
 @router.get('/menus/{menu_id}')
 async def get_target_menu(menu_id: str, db: Session = Depends(get_db)):
-    current_menu = db.query(Menu).filter(Menu.id == menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='menu not found')
+    current_menu = await get_menu_by_id(menu_id, db)
     return current_menu
 
 
 # Создать меню
 @router.post('/menus', status_code=status.HTTP_201_CREATED)
 async def create_menu(menu: MenuSchema, db: Session = Depends(get_db)):
-    created_menu = Menu(
-        id=uuid4(),
-        title=menu.title,
-        description=menu.description
-    )
-    db.add(created_menu)
-    db.commit()
-    db.refresh(created_menu)
+    created_menu = await create_menu_func(menu, db)
     return created_menu
 
 
@@ -56,53 +62,34 @@ async def update_current_menu(
     menu: MenuSchema,
     db: Session = Depends(get_db)
 ):
-    menu_to_update = db.query(Menu).filter(Menu.id == menu_id).first()
-    if menu_to_update is None:
-        raise HTTPException(status_code=404, detail='menu not found')
-    menu_to_update.title = menu.title
-    menu_to_update.description = menu.description
-    db.add(menu_to_update)
-    db.commit()
-    db.refresh(menu_to_update)
+    menu_to_update = await put_menu(menu_id, menu, db)
     return menu_to_update
 
 
 # Удалить меню
 @router.delete('/menus/{menu_id}')
 async def delete_current_menu(menu_id: str, db: Session = Depends(get_db)):
-    menu_to_delete = db.query(Menu).filter(Menu.id == menu_id).first()
-    db.delete(menu_to_delete)
-    db.commit()
+    await delete_menu(menu_id, db)
 
 
 # Просмотр списка подменю
 @router.get(
-        '/menus/{api_test_menu_id}/submenus',
-        response_model=List[SubmenuSchema2],
-        status_code=status.HTTP_200_OK
+    '/menus/{api_test_menu_id}/submenus',
+    response_model=List[SubmenuSchema2],
+    status_code=status.HTTP_200_OK
 )
-def all_submenus(api_test_menu_id: UUID4, db: Session = Depends(get_db)):
-    submenus = db.query(Submenu).filter(
-        Submenu.menu_id == api_test_menu_id).all()
+async def all_submenus(api_test_menu_id: UUID4, db: Session = Depends(get_db)):
+    submenus = await get_list_submenu(api_test_menu_id, db)
     return submenus
 
 
 # Просмотр определенного подменю
 @router.get('/menus/{api_test_menu_id}/submenus/{api_test_submenu_id}')
-def get_target_submenu(
+async def get_target_submenu(
     api_test_submenu_id: str,
     db: Session = Depends(get_db)
 ):
-
-    if api_test_submenu_id == 'null':
-        api_test_submenu_id = None
-
-    current_submenu = db.query(Submenu).filter(
-        Submenu.id == api_test_submenu_id).first()
-
-    if current_submenu is None:
-        raise HTTPException(status_code=404, detail='submenu not found')
-
+    current_submenu = await get_submenu_by_id(api_test_submenu_id, db)
     return current_submenu
 
 
@@ -116,60 +103,26 @@ async def create_submenu(
     submenu: SubmenuSchema,
     db: Session = Depends(get_db)
 ):
-    current_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='Menu not found')
-    db_submenu = Submenu(
-        id=uuid4(),
-        title=submenu.title,
-        description=submenu.description,
-        menu_id=target_menu_id
-    )
-
-    current_menu.add_submenu_count(1)
-    db.add(db_submenu)
-    db.commit()
-    db.refresh(db_submenu)
-    return db_submenu
+    current_menu = await create_submenu_func(target_menu_id, submenu, db)
+    return current_menu
 
 
 # Обновить подменю
 @router.patch('/menus/{api_test_menu_id}/submenus/{api_test_submenu_id}')
-async def update_current_menu(
+async def update_current_submenu(
     api_test_menu_id: str,
     api_test_submenu_id: str,
     submenu_update: SubmenuSchema,
     db: Session = Depends(get_db)
 ):
-    if not submenu_update.dict():
-        raise HTTPException(
-            status_code=400,
-            detail='No data provided for update'
-        )
+    current_submenu = await put_submenu(
+        api_test_menu_id,
+        api_test_submenu_id,
+        submenu_update,
+        db
+    )
 
-    current_menu = db.query(Menu).filter(Menu.id == api_test_menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='Menu not found')
-
-    submenu_to_update = db.query(Submenu).filter(
-        Submenu.id == api_test_submenu_id,
-        Submenu.menu_id == api_test_menu_id).first()
-    if submenu_to_update is None:
-        raise HTTPException(status_code=404, detail='Submenu not found')
-
-    for key, value in submenu_update.dict().items():
-        setattr(submenu_to_update, key, value)
-
-    try:
-        db.commit()
-        db.refresh(submenu_to_update)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail='Failed to update submenu. Error: ' + str(e)
-        )
-    return submenu_to_update
+    return current_submenu
 
 
 # Удалить подменю
@@ -179,22 +132,7 @@ async def delete_current_submenu(
     api_test_submenu_id: str,
     db: Session = Depends(get_db)
 ):
-    current_menu = db.query(Menu).filter(Menu.id == api_test_menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='Menu not found')
-
-    try:
-        submenu_to_delete = db.query(Submenu).filter(
-            Submenu.id == api_test_submenu_id).first()
-
-        dish_count = submenu_to_delete.dishes_count
-        current_menu.delete_submenu_count(1)
-        current_menu.delete_dishes_count(dish_count)
-        db.delete(submenu_to_delete)
-        db.commit()
-        return submenu_to_delete
-    except NoResultFound:
-        raise HTTPException(status_code=404, detail='Submenu not found')
+    await delete_submenu(api_test_menu_id, api_test_submenu_id, db)
 
 
 # Просмотр списка блюд
@@ -207,18 +145,15 @@ async def delete_current_submenu(
         404: {'description': 'меню не найдено'},
     },
 )
-def get_dishes(submenu_id: UUID, db: Session = Depends(get_db)):
-    current_dishes = db.query(Dish).filter(Dish.submenu_id == submenu_id).all()
-    dishes_list = [DishesReturn.from_orm(dish) for dish in current_dishes]
+async def get_dishes(submenu_id: UUID, db: Session = Depends(get_db)):
+    dishes_list = await get_list_dish(submenu_id, db)
     return dishes_list
 
 
 # Посмотреть определённое блюдо
 @router.get('/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-def receive_current_dish(dish_id: str, db: Session = Depends(get_db)):
-    current_dish = db.query(Dish).filter(Dish.id == dish_id).first()
-    if current_dish is None:
-        raise HTTPException(status_code=404, detail="dish not found")
+async def receive_current_dish(dish_id: str, db: Session = Depends(get_db)):
+    current_dish = await get_dish_by_id(dish_id, db)
     return current_dish
 
 
@@ -233,28 +168,13 @@ async def create_dish(
     dish: DishSchema,
     db: Session = Depends(get_db)
 ):
-    current_menu = db.query(Menu).filter(Menu.id == api_test_menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='Menu not found')
-
-    current_submenu = db.query(Submenu).filter(
-        Submenu.id == api_test_submenu_id).first()
-    if current_submenu is None:
-        raise HTTPException(status_code=404, detail='Submenu not found')
-    current_menu.add_dishes_count(1)
-    current_submenu.update_dishes_count(1)
-
-    db_dish = Dish(
-        id=uuid4(),
-        title=dish.title,
-        description=dish.description,
-        price=dish.price,
-        submenu_id=api_test_submenu_id)
-
-    db.add(db_dish)
-    db.commit()
-    db.refresh(db_dish)
-    return db_dish
+    current_dish = await create_dish_func(
+        api_test_menu_id,
+        api_test_submenu_id,
+        dish,
+        db
+    )
+    return current_dish
 
 
 # Обновить блюдо
@@ -267,38 +187,13 @@ async def update_current_menu(
     dish_update: DishSchema,
     db: Session = Depends(get_db)
 ):
-    if not dish_update.dict():
-        raise HTTPException(
-            status_code=400,
-            detail='No data provided for update'
-        )
-
-    current_menu = db.query(Menu).filter(Menu.id == api_test_menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='Menu not found')
-
-    current_submenu = db.query(Submenu).filter(
-        Submenu.id == api_test_submenu_id,
-        Submenu.menu_id == api_test_menu_id).first()
-    if current_submenu is None:
-        raise HTTPException(status_code=404, detail='Submenu not found')
-
-    dish_to_update = db.query(Dish).filter(
-        Dish.id == api_test_dish_id,
-        Dish.submenu_id == api_test_submenu_id).first()
-
-    for key, value in dish_update.dict().items():
-        setattr(dish_to_update, key, value)
-
-    try:
-        db.commit()
-        db.refresh(dish_to_update)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail='Failed to update dish. Error: ' + str(e)
-        )
+    dish_to_update = await put_dish(
+        api_test_menu_id,
+        api_test_submenu_id,
+        api_test_dish_id,
+        dish_update,
+        db
+    )
     return dish_to_update
 
 
@@ -312,23 +207,9 @@ async def delete_current_dish(
     db: Session = Depends(get_db)
 ):
 
-    current_menu = db.query(Menu).filter(Menu.id == api_test_menu_id).first()
-    if current_menu is None:
-        raise HTTPException(status_code=404, detail='Menu not found')
-
-    current_submenu = db.query(Submenu).filter(
-        Submenu.id == api_test_submenu_id,
-        Submenu.menu_id == api_test_menu_id).first()
-    if current_submenu is None:
-        raise HTTPException(status_code=404, detail='Submenu not found')
-
-    try:
-        current_menu.delete_dishes_count(1)
-        dish_to_delete = db.query(Dish).filter(
-            Dish.id == api_test_dish_id,
-            Dish.submenu_id == api_test_submenu_id).one()
-        db.delete(dish_to_delete)
-        db.commit()
-        return dish_to_delete
-    except NoResultFound:
-        raise HTTPException(status_code=404, detail='Dish not found')
+    await delete_dish(
+        api_test_menu_id,
+        api_test_submenu_id,
+        api_test_dish_id,
+        db
+    )
