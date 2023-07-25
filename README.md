@@ -4,6 +4,9 @@
 ### Как запустить проект:
 ****
 #### ШАГ 0 - Клонировать проект к себе на PC;
+```
+git clone git@github.com:LeeSinGit/y_lab_menu_project.git
+```
 #### ШАГ 1 - СОЗДАТЬ в pgAdmin 4 базу данных под названием 'menu_db' (databases->create);
 ```
 menu_db
