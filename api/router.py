@@ -21,7 +21,7 @@ router = APIRouter(prefix='/api/v1', tags=['CRUD'])
 
 # Просмотр списка меню
 @router.get('/menus', response_model=List[MenuSchema])
-def get_list_menu(db: Session = Depends(get_db)):
+async def get_list_menu(db: Session = Depends(get_db)):
     menu = db.query(Menu).all()
     return menu
 
@@ -81,7 +81,7 @@ async def delete_current_menu(menu_id: str, db: Session = Depends(get_db)):
         response_model=List[SubmenuSchema2],
         status_code=status.HTTP_200_OK
 )
-def all_submenus(api_test_menu_id: UUID4, db: Session = Depends(get_db)):
+async def all_submenus(api_test_menu_id: UUID4, db: Session = Depends(get_db)):
     submenus = db.query(Submenu).filter(
         Submenu.menu_id == api_test_menu_id).all()
     return submenus
@@ -89,7 +89,7 @@ def all_submenus(api_test_menu_id: UUID4, db: Session = Depends(get_db)):
 
 # Просмотр определенного подменю
 @router.get('/menus/{api_test_menu_id}/submenus/{api_test_submenu_id}')
-def get_target_submenu(
+async def get_target_submenu(
     api_test_submenu_id: str,
     db: Session = Depends(get_db)
 ):
@@ -207,7 +207,7 @@ async def delete_current_submenu(
         404: {'description': 'меню не найдено'},
     },
 )
-def get_dishes(submenu_id: UUID, db: Session = Depends(get_db)):
+async def get_dishes(submenu_id: UUID, db: Session = Depends(get_db)):
     current_dishes = db.query(Dish).filter(Dish.submenu_id == submenu_id).all()
     dishes_list = [DishesReturn.from_orm(dish) for dish in current_dishes]
     return dishes_list
@@ -215,7 +215,7 @@ def get_dishes(submenu_id: UUID, db: Session = Depends(get_db)):
 
 # Посмотреть определённое блюдо
 @router.get('/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-def receive_current_dish(dish_id: str, db: Session = Depends(get_db)):
+async def receive_current_dish(dish_id: str, db: Session = Depends(get_db)):
     current_dish = db.query(Dish).filter(Dish.id == dish_id).first()
     if current_dish is None:
         raise HTTPException(status_code=404, detail="dish not found")
