@@ -4,6 +4,9 @@
 ### Как запустить проект:
 ****
 #### ШАГ 0 - Клонировать проект к себе на PC;
+```
+git clone git@github.com:LeeSinGit/y_lab_menu_project.git
+```
 #### ШАГ 1 - СОЗДАТЬ в pgAdmin 4 базу данных под названием 'menu_db' (databases->create);
 ```
 menu_db
@@ -27,3 +30,6 @@ python -m uvicorn main:app --reload или uvicorn main:app --reload
 ```
 #### ШАГ 7 - Прогнать сценарий в POSTMAN, должны пройти все тесты - (Passed 161);
 ****
+
+
+##### p.s. специально не прятал данные в .env и .gitignore, чтобы не возникло проблем при проверке.
