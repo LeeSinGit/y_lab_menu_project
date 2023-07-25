@@ -20,7 +20,7 @@ source venv/Scripts/activate
 ```
 pip install -r requirements.txt
 ```
-#### ШАГ 5 - Перейти в директорию apo/ и активировать скрипт создания таблиц в базе данных командой py create_db.py;
+#### ШАГ 5 - Перейти в директорию api/ и активировать скрипт создания таблиц в базе данных командой py create_db.py;
 ```
 cd api/                       py create_db.py или python create_db.py
 ```
