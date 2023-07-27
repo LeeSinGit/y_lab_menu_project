@@ -32,6 +32,7 @@ cd api/
 ```
 py create_db.py
 ```
+##### OR
 ```
 python create_db.py
 ```
