@@ -42,8 +42,7 @@ python -m uvicorn main:app --reload
 ```
 uvicorn main:app --reload
 ```
-#### ШАГ 9 - Прогнать сценарий в POSTMAN, должны пройти все тесты - (Passed 161);
-****
+#### ШАГ 9 - Прогнать сценарий в POSTMAN.
 ****
 ### *Над проектом работал Лисин Семён :heart:*
 ### *Код написан на языке Python :v:*
