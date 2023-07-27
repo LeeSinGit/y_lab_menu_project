@@ -16,11 +16,11 @@ menu_db
 ```
 py -m venv venv
 ```
-#### ШАГ 4 - Подключить виртуальное окружение командой source venv/Scripts/activate;
+#### ШАГ 4 - Подключить виртуальное окружение;
 ```
 source venv/Scripts/activate
 ```
-#### ШАГ 5 - Установить зависимости командой pip install -r requirements.txt;
+#### ШАГ 5 - Установить зависимости;
 ```
 pip install -r requirements.txt
 ```
@@ -28,17 +28,18 @@ pip install -r requirements.txt
 ```
 cd api/
 ```
-#### ШАГ 7 - Активировать скрипт создания таблиц в базе данных командой py create_db.py;
+#### ШАГ 7 - Активировать скрипт создания таблиц в базе данных;
 ```
 py create_db.py
 ```
 ```
 python create_db.py
 ```
-#### ШАГ 8 - Включить сервер uvicorn командой python -m uvicorn main:app --reload или uvicorn main:app --reload;
+#### ШАГ 8 - Включить сервер uvicorn;
 ```
 python -m uvicorn main:app --reload
 ```
+##### OR
 ```
 uvicorn main:app --reload
 ```
