@@ -1,9 +1,9 @@
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException
-from models import Dish, Menu, Submenu
+from models.models import Dish, Menu, Submenu
 from pydantic import UUID4
-from schemas import DishesReturn, DishSchema, MenuSchema, SubmenuSchema
+from schemas.schemas import DishesReturn, DishSchema, MenuSchema, SubmenuSchema
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -60,9 +60,10 @@ async def delete_menu(menu_id: str, db: Session):
 
 
 # Просмотр списка подменю
-async def get_list_submenu(api_test_menu_id: UUID4, db: Session):
+async def get_list_submenu(api_test_menu_id: UUID, db: Session):
+    api_test_menu_id_str = str(api_test_menu_id)
     submenus = db.query(Submenu).filter(
-        Submenu.menu_id == api_test_menu_id).all()
+        Submenu.menu_id == api_test_menu_id_str).all()
     return submenus
 
 
@@ -167,7 +168,9 @@ async def delete_submenu(
 
 # Просмотр списка блюд
 async def get_list_dish(submenu_id: UUID, db: Session):
-    current_dishes = db.query(Dish).filter(Dish.submenu_id == submenu_id).all()
+    submenu_id_str = str(submenu_id)
+    current_dishes = db.query(Dish).filter(
+        Dish.submenu_id == submenu_id_str).all()
     dishes_list = [DishesReturn.from_orm(dish) for dish in current_dishes]
     return dishes_list
 

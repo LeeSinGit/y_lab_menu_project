@@ -1,5 +1,5 @@
+from endpoints.router import router as router_operation
 from fastapi import FastAPI
-from router import router as router_operation
 
 
 app = FastAPI(title='YP Project')

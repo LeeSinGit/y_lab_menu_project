@@ -1,7 +1,8 @@
 from typing import List
 from uuid import UUID
 
-from crud import (
+from db.database import get_db
+from endpoints.crud import (
     create_dish_func,
     create_menu_func,
     create_submenu_func,
@@ -18,10 +19,9 @@ from crud import (
     put_menu,
     put_submenu,
 )
-from database import get_db
 from fastapi import APIRouter, Depends, status
 from pydantic import UUID4
-from schemas import (
+from schemas.schemas import (
     DishesReturn,
     DishSchema,
     MenuSchema,
