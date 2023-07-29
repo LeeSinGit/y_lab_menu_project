@@ -1,8 +1,8 @@
 from typing import List
 from uuid import UUID
 
-from db.database import get_db
-from endpoints.crud import (
+from api.data.database import get_db
+from api.endpoints.crud import (
     create_dish_func,
     create_menu_func,
     create_submenu_func,
@@ -19,15 +19,15 @@ from endpoints.crud import (
     put_menu,
     put_submenu,
 )
-from fastapi import APIRouter, Depends, status
-from pydantic import UUID4
-from schemas.schemas import (
+from api.schemas.schemas import (
     DishesReturn,
     DishSchema,
     MenuSchema,
     SubmenuSchema,
     SubmenuSchema2,
 )
+from fastapi import APIRouter, Depends, status
+from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 

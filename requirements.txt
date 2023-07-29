@@ -4,3 +4,7 @@ psycopg2-binary==2.9.6
 uvicorn==0.23.1
 pydantic>=1.0,<3.0
 python-dotenv
+alembic==1.11.1
+httpx==0.24.1
+pytest==7.4.0
+requests==2.31.0

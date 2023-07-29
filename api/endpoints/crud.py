@@ -1,9 +1,13 @@
 from uuid import UUID, uuid4
 
+from api.models.models import Dish, Menu, Submenu
+from api.schemas.schemas import (
+    DishesReturn,
+    DishSchema,
+    MenuSchema,
+    SubmenuSchema,
+)
 from fastapi import HTTPException
-from models.models import Dish, Menu, Submenu
-from pydantic import UUID4
-from schemas.schemas import DishesReturn, DishSchema, MenuSchema, SubmenuSchema
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
