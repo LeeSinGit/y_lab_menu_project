@@ -15,6 +15,7 @@ cd y_lab_menu_project/
 ```
 docker-compose -f docker-compose.test.yml up --build
 ```
+****
 ##### Инструкция по работе с БД, если встанет такая необходимость.
 Удобнее всего зайти в терминал базы данных через Docker Desctop.
 Нажать на db_postgres -> Terminal
