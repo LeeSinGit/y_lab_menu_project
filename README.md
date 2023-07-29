@@ -8,12 +8,13 @@
 git clone git@github.com:LeeSinGit/y_lab_menu_project.git
 ```
 #### ШАГ 1 - Зайти в корневую директорию проекта;
+```
+cd y_lab_menu_project/
+```
 #### ШАГ 2 - Применить команду;
-
 ```
 docker-compose -f docker-compose.test.yml up --build
 ```
-
 ##### Инструкция по работе с БД, если встанет такая необходимость.
 Удобнее всего зайти в терминал базы данных через Docker Desctop.
 Нажать на db_postgres -> Terminal
