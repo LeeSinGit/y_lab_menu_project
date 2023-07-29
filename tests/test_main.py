@@ -55,7 +55,9 @@ class TestMenu:
     def test_get_list_menu(self):
         response = client.get(self.url)
         assert response.status_code == 200
-        assert response.json() == [], 'JSON-ответ не пустой, ожидался пустой список'
+        assert (
+            response.json() == []
+        ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создает меню
     def test_create_menu(self):
@@ -79,7 +81,9 @@ class TestMenu:
     def test_get_list_menu_not_empty(self, menu_id):
         response = client.get(self.url)
         assert response.status_code == 200
-        assert response.json() != [], 'JSON-ответ пустой, ожидался непустой список'
+        assert (
+            response.json() != []
+        ), 'JSON-ответ пустой, ожидался непустой список'
 
     # Просматривает определенное меню
     def test_get_target_menu(self, menu_id):
@@ -128,7 +132,9 @@ class TestSubmenu:
     def test_get_list_all_submenus(self, menu_id):
         response = client.get(f'/{self.url}/{menu_id}/submenus/')
         assert response.status_code == 200
-        assert response.json() == [], 'JSON-ответ не пустой, ожидался пустой список'
+        assert (
+            response.json() == []
+        ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создать подменю
     def test_create_submenu(self, menu_id):
@@ -154,7 +160,10 @@ class TestSubmenu:
             'description': f'Updated Test SubMenu Description_{uuid.uuid4()}'
         }
 
-        response = client.patch(f'/{self.url}/{menu_id}/submenus/{submenu_id}', json=updated_data)
+        response = client.patch(
+            f'/{self.url}/{menu_id}/submenus/{submenu_id}',
+            json=updated_data
+        )
         assert response.status_code == 200
         assert response.json()['title'] == updated_data['title']
         assert response.json()['description'] == updated_data['description']
@@ -170,7 +179,9 @@ class TestSubmenu:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
 
-        response = client.delete(f'/{self.url}/{menu_id}/submenus/{submenu_id}')
+        response = client.delete(
+            f'/{self.url}/{menu_id}/submenus/{submenu_id}'
+        )
         assert response.status_code == 200
 
         response = client.get(f'/{self.url}/{menu_id}/submenus/{submenu_id}')
@@ -187,7 +198,9 @@ class TestDish:
             f'/{self.url}/{menu_id}/submenus/{submenu_id}/dishes'
         )
         assert response.status_code == 200
-        assert response.json() == [], 'JSON-ответ не пустой, ожидался пустой список'
+        assert (
+            response.json() == []
+        ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создать блюдо
     def test_create_dish(self, menu_id, submenu_id):
