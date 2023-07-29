@@ -9,10 +9,34 @@ git clone git@github.com:LeeSinGit/y_lab_menu_project.git
 ```
 #### ШАГ 1 - Зайти в корневую директорию проекта;
 #### ШАГ 2 - Применить команду;
+
 ```
 docker-compose -f docker-compose.test.yml up --build
 ```
 
+##### Инструкция по работе с БД, если встанет такая необходимость.
+Удобнее всего зайти в терминал базы данных через Docker Desctop.
+Нажать на db_postgres -> Terminal
+Затем прописать там команду:
+```
+psql -U postgres -d menu_db
+```
+Посмотреть все таблицы:
+```
+\dt
+```
+Очистить данные из таблицы Menu:
+```
+DELETE FROM "Menu";
+```
+Очистить данные из таблицы Submenu:
+```
+DELETE FROM "Submenu";
+```
+Очистить данные из таблицы Dish:
+```
+DELETE FROM "Dish";
+```
 ****
 ### *Над проектом работал Лисин Семён :heart:*
 ### *Код написан на языке Python :v:*
