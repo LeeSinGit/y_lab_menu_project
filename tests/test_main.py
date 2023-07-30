@@ -77,6 +77,14 @@ class TestMenu:
             response.json()['dishes_count'] == 0
         )
 
+    # Просматривает список подменю
+    def test_get_list_submenu(self, menu_id):
+        response = client.get(f'/{self.url}/{menu_id}/submenus')
+        assert response.status_code == 200
+        assert (
+            response.json() == []
+        ), 'JSON-ответ не пустой, ожидался пустой список'
+
     # Создать подменю
     def test_create_submenu(self, menu_id):
         data = {
@@ -90,6 +98,16 @@ class TestMenu:
         assert 'dishes_count' in response.json() and (
             response.json()['dishes_count'] == 0
         )
+
+    # Просматривает список блюд
+    def test_get_list_dish(self, menu_id, submenu_id):
+        response = client.get(
+            f'/{self.url}/{menu_id}/submenus/{submenu_id}/dishes'
+        )
+        assert response.status_code == 200
+        assert (
+            response.json() == []
+        ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создать блюдо
     def test_create_dish(self, menu_id, submenu_id):

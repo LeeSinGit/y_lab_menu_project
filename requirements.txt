@@ -8,3 +8,5 @@ alembic==1.11.1
 httpx==0.24.1
 pytest==7.4.0
 requests==2.31.0
+pytest_expect==1.1.0
+six==1.16.0

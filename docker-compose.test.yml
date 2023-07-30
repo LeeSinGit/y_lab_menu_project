@@ -46,7 +46,7 @@ services:
   pytest:
     build: .
     container_name: pytest
-    command: sh -c "cd /app && export PYTHONPATH=/app && python -m pytest"
+    command: sh -c "cd /app && export PYTHONPATH=/app && python -m pytest -vv"
     volumes:
       - .:/app
     networks:
