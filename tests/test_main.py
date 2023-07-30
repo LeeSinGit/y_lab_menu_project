@@ -52,6 +52,7 @@ class TestMenu:
     url = 'api/v1/menus'
 
     # Просматривает список меню
+    @pytest.mark.order(1)
     def test_get_list_menu(self):
         response = client.get(f'/{self.url}/')
         assert response.status_code == 200
@@ -60,6 +61,7 @@ class TestMenu:
         ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создает меню
+    @pytest.mark.order(2)
     def test_create_menu(self):
         data = {
             'title': f'NEW_TITLE_MENU_PYTEST_{uuid.uuid4()}',
@@ -78,6 +80,7 @@ class TestMenu:
         )
 
     # Просматривает список подменю
+    @pytest.mark.order(3)
     def test_get_list_submenu(self, menu_id):
         response = client.get(f'/{self.url}/{menu_id}/submenus')
         assert response.status_code == 200
@@ -86,6 +89,7 @@ class TestMenu:
         ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создать подменю
+    @pytest.mark.order(4)
     def test_create_submenu(self, menu_id):
         data = {
             'title': f'NEW_TITLE_SUBMENU_PYTEST_{uuid.uuid4()}',
@@ -100,6 +104,7 @@ class TestMenu:
         )
 
     # Просматривает список блюд
+    @pytest.mark.order(5)
     def test_get_list_dish(self, menu_id, submenu_id):
         response = client.get(
             f'/{self.url}/{menu_id}/submenus/{submenu_id}/dishes'
@@ -110,6 +115,7 @@ class TestMenu:
         ), 'JSON-ответ не пустой, ожидался пустой список'
 
     # Создать блюдо
+    @pytest.mark.order(6)
     def test_create_dish(self, menu_id, submenu_id):
         data = {
             'price': f'9._{uuid.uuid4()}',
@@ -125,6 +131,7 @@ class TestMenu:
         assert response.json()['description'] == data['description']
 
     # Обновляет меню
+    @pytest.mark.order(7)
     def test_update_current_menu(self, menu_id):
         assert menu_id is not None, 'ID меню не был сохранен'
 
@@ -145,6 +152,7 @@ class TestMenu:
         )
 
     # Обновляет подменю
+    @pytest.mark.order(8)
     def test_update_submenu(self, menu_id, submenu_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
@@ -169,6 +177,7 @@ class TestMenu:
         )
 
     # Обновить блюдо
+    @pytest.mark.order(9)
     def test_update_dish(self, menu_id, submenu_id, dish_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
@@ -190,6 +199,7 @@ class TestMenu:
         assert response.json()['description'] == updated_data['description']
 
     # Просматривает определенное меню
+    @pytest.mark.order(10)
     def test_get_target_menu(self, menu_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         response = client.get(f'/{self.url}/{menu_id}')
@@ -198,6 +208,7 @@ class TestMenu:
         assert response.json()['id'] == menu_id
 
     # Просматривает список меню
+    @pytest.mark.order(11)
     def test_get_list_menu_not_empty(self):
         response = client.get(f'/{self.url}/')
         assert response.status_code == 200
@@ -206,6 +217,7 @@ class TestMenu:
         ), 'JSON-ответ пустой, ожидался непустой список'
 
     # Просматривает определенное подменю
+    @pytest.mark.order(12)
     def test_get_target_submenu(self, menu_id, submenu_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
@@ -216,7 +228,17 @@ class TestMenu:
         assert response.json()['id'] == submenu_id
         assert response.json()['menu_id'] == menu_id
 
+    # Просматривает список подменю
+    @pytest.mark.order(13)
+    def test_get_list_submenu_not_empty(self, menu_id):
+        response = client.get(f'/{self.url}/{menu_id}/submenus')
+        assert response.status_code == 200
+        assert (
+            response.json() == []
+        ), 'JSON-ответ не пустой, ожидался пустой список'
+
     # Просматривает определенное блюдо
+    @pytest.mark.order(14)
     def test_get_target_d(self, menu_id, submenu_id, dish_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
@@ -231,6 +253,7 @@ class TestMenu:
         assert response.json()['submenu_id'] == submenu_id
 
     # Удалить блюдо
+    @pytest.mark.order(16)
     def test_delete_dish(self, menu_id, submenu_id, dish_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
@@ -247,6 +270,7 @@ class TestMenu:
         assert response.status_code == 404, 'Ошибка 404'
 
     # Удалить подменю
+    @pytest.mark.order(17)
     def test_delete_submenu(self, menu_id, submenu_id):
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
@@ -260,6 +284,7 @@ class TestMenu:
         assert response.status_code == 404, 'Ошибка 404'
 
     # Удаляет созданное меню
+    @pytest.mark.order(18)
     def test_delete_menu(self, menu_id):
         assert menu_id is not None, 'ID меню не был сохранен'
 
