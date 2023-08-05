@@ -56,6 +56,14 @@ services:
         condition: service_healthy
 
 
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - menu_networks
+
 networks:
   menu_networks:
     name: menu_networks
