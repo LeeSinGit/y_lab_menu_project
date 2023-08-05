@@ -4,18 +4,18 @@ import pytest
 from fastapi.testclient import TestClient
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from main import app
 from redis import Redis
 
+from main import app
 
 client = TestClient(app)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 async def clear_cache():
-    redis = Redis(host="redis", port=6379, db=0)
+    redis = Redis(host='redis', port=6379, db=0)
     cache_backend = RedisBackend(redis)
-    FastAPICache.init(cache_backend, prefix="fastapi-cache")
+    FastAPICache.init(cache_backend, prefix='fastapi-cache')
     await cache_backend.clear()
 
 
@@ -28,7 +28,7 @@ async def before_and_after_test(clear_cache):
     await clear_cache()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 def menu_id():
     data = {
         'title': f'NEW_TITLE_MENU_PYTEST_{uuid.uuid4()}',
@@ -39,7 +39,7 @@ def menu_id():
     return response.json()['id']
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 def submenu_id(menu_id):
     data = {
         'title': f'NEW_TITLE_SUBMENU_PYTEST_{uuid.uuid4()}',
@@ -50,7 +50,7 @@ def submenu_id(menu_id):
     return response.json()['id']
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 def dish_id(menu_id, submenu_id):
     data = {
         'price': f'3.99_{uuid.uuid4()}',

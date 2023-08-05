@@ -1,17 +1,13 @@
 from uuid import UUID, uuid4
 
-from api.models.models import Dish, Menu, Submenu
-from api.schemas.schemas import (
-    DishesReturn,
-    DishSchema,
-    MenuSchema,
-    SubmenuSchema,
-)
 from fastapi import HTTPException
 from fastapi_cache.decorator import cache
 from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
+
+from api.models.models import Dish, Menu, Submenu
+from api.schemas.schemas import DishesReturn, DishSchema, MenuSchema, SubmenuSchema
 
 
 # Просмотр списка меню
@@ -35,7 +31,7 @@ async def get_menu_by_id(menu_id: str, db: Session):
 async def create_menu_func(menu: MenuSchema, db: Session):
     if db.query(exists().where(Menu.title == menu.title)).scalar():
         raise HTTPException(
-            status_code=400, detail="Menu with this title already exists"
+            status_code=400, detail='Menu with this title already exists'
         )
 
     created_menu = Menu(
@@ -86,7 +82,7 @@ async def get_list_submenu(api_test_menu_id: UUID, db: Session):
 
 # Просмотр определенного подменю
 @cache(expire=30)
-async def get_submenu_by_id(api_test_submenu_id: str, db: Session):
+async def get_submenu_by_id(api_test_submenu_id: str | None, db: Session):
     if api_test_submenu_id == 'null':
         api_test_submenu_id = None
 
@@ -202,7 +198,7 @@ async def get_list_dish(submenu_id: UUID, db: Session):
 async def get_dish_by_id(dish_id: str, db: Session):
     current_dish = db.query(Dish).filter(Dish.id == dish_id).first()
     if current_dish is None:
-        raise HTTPException(status_code=404, detail="dish not found")
+        raise HTTPException(status_code=404, detail='dish not found')
     return current_dish
 
 

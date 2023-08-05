@@ -1,5 +1,8 @@
-from typing import List
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, status
+from pydantic import UUID4
+from sqlalchemy.orm import Session
 
 from api.data.database import get_db
 from api.endpoints.crud import (
@@ -26,16 +29,12 @@ from api.schemas.schemas import (
     SubmenuSchema,
     SubmenuSchema2,
 )
-from fastapi import APIRouter, Depends, status
-from pydantic import UUID4
-from sqlalchemy.orm import Session
-
 
 router = APIRouter(prefix='/api/v1', tags=['CRUD'])
 
 
 # Просмотр списка меню
-@router.get('/menus', response_model=List[MenuSchema])
+@router.get('/menus', response_model=list[MenuSchema])
 async def get_list_menu(db: Session = Depends(get_db)):
     menu = await get_menu_list(db)
     return menu
@@ -75,7 +74,7 @@ async def delete_current_menu(menu_id: str, db: Session = Depends(get_db)):
 # Просмотр списка подменю
 @router.get(
     '/menus/{api_test_menu_id}/submenus',
-    response_model=List[SubmenuSchema2],
+    response_model=list[SubmenuSchema2],
     status_code=status.HTTP_200_OK
 )
 async def all_submenus(api_test_menu_id: UUID4, db: Session = Depends(get_db)):
@@ -177,9 +176,9 @@ async def create_dish(
 
 
 # Обновить блюдо
-@router.patch(('/menus/{api_test_menu_id}/submenus/{api_test_submenu_id}/'
-               'dishes/{api_test_dish_id}'))
-async def update_current_menu(
+@router.patch('/menus/{api_test_menu_id}/submenus/{api_test_submenu_id}/'
+              'dishes/{api_test_dish_id}')
+async def update_current_menu_dish(
     api_test_menu_id: str,
     api_test_submenu_id: str,
     api_test_dish_id: str,
