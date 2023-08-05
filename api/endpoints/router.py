@@ -121,7 +121,6 @@ async def update_current_submenu(
         submenu_update,
         db
     )
-
     return current_submenu
 
 
@@ -206,7 +205,6 @@ async def delete_current_dish(
     api_test_dish_id: str,
     db: Session = Depends(get_db)
 ):
-
     await delete_dish(
         api_test_menu_id,
         api_test_submenu_id,

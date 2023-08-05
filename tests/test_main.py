@@ -2,10 +2,30 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 from main import app
+from redis import Redis
 
 
 client = TestClient(app)
+
+
+@pytest.fixture(scope="function")
+async def clear_cache():
+    redis = Redis(host="redis", port=6379, db=0)
+    cache_backend = RedisBackend(redis)
+    FastAPICache.init(cache_backend, prefix="fastapi-cache")
+    await cache_backend.clear()
+
+
+# Добавьте фикстуру clear_cache как зависимость для всех тестов
+@pytest.fixture(autouse=True)
+async def before_and_after_test(clear_cache):
+    # Выполняется перед каждым тестом
+    yield
+    # Выполняется после каждого теста
+    await clear_cache()
 
 
 @pytest.fixture(scope="function")

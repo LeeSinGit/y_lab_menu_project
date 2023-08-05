@@ -8,17 +8,21 @@ from api.schemas.schemas import (
     SubmenuSchema,
 )
 from fastapi import HTTPException
+from fastapi_cache.decorator import cache
+from sqlalchemy import exists
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
 
 # Просмотр списка меню
+@cache(expire=30)
 async def get_menu_list(db):
     menu = db.query(Menu).all()
     return menu
 
 
 # Просмотр определенного меню
+@cache(expire=30)
 async def get_menu_by_id(menu_id: str, db: Session):
     current_menu = db.query(Menu).filter(Menu.id == menu_id).first()
     if current_menu is None:
@@ -27,7 +31,13 @@ async def get_menu_by_id(menu_id: str, db: Session):
 
 
 # Создать меню
+@cache()
 async def create_menu_func(menu: MenuSchema, db: Session):
+    if db.query(exists().where(Menu.title == menu.title)).scalar():
+        raise HTTPException(
+            status_code=400, detail="Menu with this title already exists"
+        )
+
     created_menu = Menu(
         id=uuid4(),
         title=menu.title,
@@ -40,6 +50,7 @@ async def create_menu_func(menu: MenuSchema, db: Session):
 
 
 # Обновить меню
+@cache()
 async def put_menu(
     menu_id: str,
     menu: MenuSchema,
@@ -57,6 +68,7 @@ async def put_menu(
 
 
 # Удалить меню
+@cache()
 async def delete_menu(menu_id: str, db: Session):
     menu_to_delete = db.query(Menu).filter(Menu.id == menu_id).first()
     db.delete(menu_to_delete)
@@ -64,6 +76,7 @@ async def delete_menu(menu_id: str, db: Session):
 
 
 # Просмотр списка подменю
+@cache(expire=30)
 async def get_list_submenu(api_test_menu_id: UUID, db: Session):
     api_test_menu_id_str = str(api_test_menu_id)
     submenus = db.query(Submenu).filter(
@@ -72,6 +85,7 @@ async def get_list_submenu(api_test_menu_id: UUID, db: Session):
 
 
 # Просмотр определенного подменю
+@cache(expire=30)
 async def get_submenu_by_id(api_test_submenu_id: str, db: Session):
     if api_test_submenu_id == 'null':
         api_test_submenu_id = None
@@ -86,6 +100,7 @@ async def get_submenu_by_id(api_test_submenu_id: str, db: Session):
 
 
 # Создать подменю
+@cache()
 async def create_submenu_func(
     target_menu_id: str,
     submenu: SubmenuSchema,
@@ -109,6 +124,7 @@ async def create_submenu_func(
 
 
 # Обновить подменю
+@cache()
 async def put_submenu(
     api_test_menu_id: str,
     api_test_submenu_id: str,
@@ -147,6 +163,7 @@ async def put_submenu(
 
 
 # Удалить подменю
+@cache()
 async def delete_submenu(
     api_test_menu_id: str,
     api_test_submenu_id: str,
@@ -171,6 +188,7 @@ async def delete_submenu(
 
 
 # Просмотр списка блюд
+@cache(expire=30)
 async def get_list_dish(submenu_id: UUID, db: Session):
     submenu_id_str = str(submenu_id)
     current_dishes = db.query(Dish).filter(
@@ -180,6 +198,7 @@ async def get_list_dish(submenu_id: UUID, db: Session):
 
 
 # Просмотреть определённое блюдо
+@cache(expire=30)
 async def get_dish_by_id(dish_id: str, db: Session):
     current_dish = db.query(Dish).filter(Dish.id == dish_id).first()
     if current_dish is None:
@@ -188,6 +207,7 @@ async def get_dish_by_id(dish_id: str, db: Session):
 
 
 # Создать блюдо
+@cache()
 async def create_dish_func(
     api_test_menu_id: str,
     api_test_submenu_id: str,
@@ -219,6 +239,7 @@ async def create_dish_func(
 
 
 # Обновить блюдо
+@cache()
 async def put_dish(
     api_test_menu_id: str,
     api_test_submenu_id: str,
@@ -262,6 +283,7 @@ async def put_dish(
 
 
 # Удалить блюдо
+@cache()
 async def delete_dish(
     api_test_menu_id: str,
     api_test_submenu_id: str,
