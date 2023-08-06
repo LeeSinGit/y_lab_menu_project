@@ -29,7 +29,7 @@ SQLALCHEMY_DATABASE_URL = (f'postgresql://{DB_USER}:{DB_PASS}'
                            f'@{DB_HOST}:{DB_PORT}/{DB_NAME}')
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def db_session():
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -341,7 +341,7 @@ class TestMenu:
         assert response.status_code == 404, 'Ошибка 404'
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def clear_db_after_all_tests(request, db_session):
     yield
     # Очистка всех таблиц в базе данных после всех тестов
