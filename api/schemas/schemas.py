@@ -4,6 +4,8 @@ from pydantic import UUID4, BaseModel
 class MenuSchema(BaseModel):
     title: str
     description: str
+    submenus_count: int | None = 0
+    dishes_count: int | None = 0
 
     class Config:
         from_attributes = True
