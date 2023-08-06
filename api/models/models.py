@@ -1,11 +1,12 @@
-from api.data.database import Base
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from api.data.database import Base
+
 
 class Menu(Base):
-    __tablename__ = "Menu"
+    __tablename__ = 'Menu'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     title = Column(String, nullable=False, unique=True)
@@ -28,7 +29,7 @@ class Menu(Base):
 
 
 class Submenu(Base):
-    __tablename__ = "Submenu"
+    __tablename__ = 'Submenu'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     title = Column(String, nullable=False, unique=True)
@@ -46,7 +47,7 @@ class Submenu(Base):
 
 
 class Dish(Base):
-    __tablename__ = "Dish"
+    __tablename__ = 'Dish'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     title = Column(String, nullable=False, unique=True)
