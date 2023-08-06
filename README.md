@@ -15,10 +15,9 @@ cd y_lab_menu_project/
 ```
 docker-compose -f docker-compose.test.yml up --build
 ```
-****
 #### Будут пройдены все тесты pytest;
 
-
+****
 #### Изменения в проекте к третьему домашнему заданию!
 
 1. Бизнес логика разделена:
