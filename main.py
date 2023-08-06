@@ -1,11 +1,12 @@
 import os
 
 import redis
-from api.endpoints.router import router as router_operation
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+
+from api.endpoints.router import router as router_operation
 
 load_dotenv()
 app = FastAPI(title='YP Project')
