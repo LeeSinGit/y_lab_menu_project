@@ -32,7 +32,7 @@ class SubmenuSchema(BaseModel):
 
 class SubmenuSchema2(BaseModel):
     title: str
-    description: str | None = None
+    description: str | None
     dishes_count: int | None = 0
 
     class Config:

@@ -13,15 +13,11 @@ app = FastAPI(title='YP Project')
 
 app.include_router(router_operation)
 
-redis_host = os.environ.get('REDIS_HOST')
-redis_port = os.environ.get('REDIS_PORT')
-redis_db = os.environ.get('REDIS_DB')
+redis_host: str = os.environ.get('REDIS_HOST', 'redis')
+redis_port: int = int(os.environ.get('REDIS_PORT', 6379))
+redis_db: int = int(os.environ.get('REDIS_DB', 0))
 
 try:
-    redis_host = 'redis'
-    redis_port = 6379
-    redis_db = 0
-
     redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
 
     pong = redis_client.ping()
