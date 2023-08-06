@@ -1,14 +1,42 @@
+import os
 import uuid
 
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import Redis
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+from api.data.database import Base
+from api.models.models import Dish, Menu, Submenu
 from main import app
 
 client = TestClient(app)
+
+load_dotenv()
+
+DB_HOST = os.environ.get('DB_HOST')
+DB_PORT = os.environ.get('DB_PORT')
+DB_NAME = os.environ.get('DB_NAME')
+DB_USER = os.environ.get('DB_USER')
+DB_PASS = os.environ.get('DB_PASS')
+
+
+SQLALCHEMY_DATABASE_URL = (f'postgresql://{DB_USER}:{DB_PASS}'
+                           f'@{DB_HOST}:{DB_PORT}/{DB_NAME}')
+
+
+@pytest.fixture(scope="session")
+def db_session():
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    yield db
+    db.close()
 
 
 @pytest.fixture(scope='function')
@@ -19,10 +47,8 @@ async def clear_cache():
     await cache_backend.clear()
 
 
-# Добавьте фикстуру clear_cache как зависимость для всех тестов
 @pytest.fixture(autouse=True)
 async def before_and_after_test(clear_cache):
-    # Выполняется перед каждым тестом
     yield
     # Выполняется после каждого теста
     await clear_cache()
@@ -313,3 +339,13 @@ class TestMenu:
 
         response = client.get(f'/{self.url}/{menu_id}')
         assert response.status_code == 404, 'Ошибка 404'
+
+
+@pytest.fixture(scope="session", autouse=True)
+def clear_db_after_all_tests(request, db_session):
+    yield
+    # Очистка всех таблиц в базе данных после всех тестов
+    db_session.query(Menu).delete()
+    db_session.query(Submenu).delete()
+    db_session.query(Dish).delete()
+    db_session.commit()
