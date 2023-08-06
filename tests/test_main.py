@@ -19,10 +19,8 @@ async def clear_cache():
     await cache_backend.clear()
 
 
-# Добавьте фикстуру clear_cache как зависимость для всех тестов
 @pytest.fixture(autouse=True)
 async def before_and_after_test(clear_cache):
-    # Выполняется перед каждым тестом
     yield
     # Выполняется после каждого теста
     await clear_cache()
