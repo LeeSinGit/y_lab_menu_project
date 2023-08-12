@@ -1,36 +1,24 @@
-import os
 
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-load_dotenv()
+from api.config.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 
-DB_HOST = os.environ.get('DB_HOST')
-DB_PORT = os.environ.get('DB_PORT')
-DB_NAME = os.environ.get('DB_NAME')
-DB_USER = os.environ.get('DB_USER')
-DB_PASS = os.environ.get('DB_PASS')
-
-
-SQLALCHEMY_DATABASE_URL = (f'postgresql://{DB_USER}:{DB_PASS}'
+SQLALCHEMY_DATABASE_URL = (f'postgresql+asyncpg://{DB_USER}:{DB_PASS}'
                            f'@{DB_HOST}:{DB_PORT}/{DB_NAME}')
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
 
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
 )
 
 Base = declarative_base()
 
-Base.metadata.create_all(bind=engine)
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncSession:
+    async with AsyncSessionLocal() as session:
+        yield session

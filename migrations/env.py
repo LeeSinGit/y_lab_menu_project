@@ -3,21 +3,30 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from api.config.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 from api.data.base import Base
-from api.data.database import SQLALCHEMY_DATABASE_URL
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-fileConfig(config.config_file_name)
+
+section = config.config_ini_section
+config.set_section_option(section, "DB_USER", DB_USER)
+config.set_section_option(section, "DB_PASS", DB_PASS)
+config.set_section_option(section, "DB_NAME", DB_NAME)
+config.set_section_option(section, "DB_HOST", DB_HOST)
+config.set_section_option(section, "DB_PORT", DB_PORT)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
-# target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -37,12 +46,12 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option(SQLALCHEMY_DATABASE_URL)
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={'paramstyle': 'named'},
+        dialect_opts={"paramstyle": "named"},
     )
 
     with context.begin_transaction():
@@ -56,17 +65,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    configuration = config.get_section(config.config_ini_section)
-    configuration['sqlalchemy.url'] = SQLALCHEMY_DATABASE_URL
     connectable = engine_from_config(
-        configuration,
-        prefix='sqlalchemy.',
+        config.get_section(config.config_ini_section),
+        prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
         )
 
         with context.begin_transaction():

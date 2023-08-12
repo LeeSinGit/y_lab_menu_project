@@ -1,21 +1,21 @@
-import os
-
 import redis
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
+from api.config.config import REDIS_DB, REDIS_HOST, REDIS_PORT
 from api.endpoints.router import router as router_operation
 
 load_dotenv()
+
 app = FastAPI(title='YP Project')
 
 app.include_router(router_operation)
 
-redis_host: str = os.environ.get('REDIS_HOST', 'redis')
-redis_port: int = int(os.environ.get('REDIS_PORT', 6379))
-redis_db: int = int(os.environ.get('REDIS_DB', 0))
+redis_host: str = REDIS_HOST
+redis_port: int = int(REDIS_PORT)
+redis_db: int = int(REDIS_DB)
 
 try:
     redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
