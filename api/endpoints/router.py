@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 from api.data.database import get_db
 from api.endpoints.crud import (create_dish_func, create_menu_func,
                                 create_submenu_func, delete_dish, delete_menu,
-                                delete_submenu, get_dish_by_id, get_list_dish,
+                                delete_submenu,
+                                get_all_menus_with_submenus_and_dishes_func,
+                                get_dish_by_id, get_list_dish,
                                 get_list_submenu, get_menu_by_id,
                                 get_menu_list, get_submenu_by_id, put_dish,
                                 put_menu, put_submenu)
@@ -292,3 +294,11 @@ async def delete_current_dish(
         api_test_dish_id,
         db
     )
+
+
+@router.get("/menus-with-submenus-and-dishes/")
+async def get_all_menus_with_submenus_and_dishes(
+    db: Session = Depends(get_db)
+):
+    menus = await get_all_menus_with_submenus_and_dishes_func(db)
+    return menus

@@ -398,3 +398,46 @@ class TestMenu:
         async for client in http_client:
             response = await client.get(f'/{self.url}/{menu_id}')
             assert response.status_code == 404, 'Ошибка 404'
+
+    # Тестирует показ всех связанных сущностей
+    @pytest.mark.order(18)
+    @pytest.mark.asyncio
+    async def test_get_list_all(self, http_client):
+        async for client in http_client:
+            response = await client.get(
+                '/api/v1/menus-with-submenus-and-dishes/'
+            )
+            assert response.status_code == 200
+
+            expected_menu = [
+                {
+                    "id": '1ae2748c-6f3b-4c0f-a32a-09eea3a805ad',
+                    "title": "Menu 1",
+                    "description": "Description 1",
+                    "submenus_count": 2,
+                    "dishes_count": 5
+                },
+            ]
+            expected_submenu = [
+                {
+                    "menu_id": '1ae2748c-6f3b-4c0f-a32a-09eea3a805ad',
+                    "id": '2ae2748c-6f3b-4c0f-a32a-02eea3a326ad',
+                    "title": "Submenu 1",
+                    "description": "Description 1",
+                    "dishes_count": 3
+                },
+            ]
+            expected_dishes_list = [
+                {
+                    "submenu_id": '2ae2748c-6f3b-4c0f-a32a-02eea3a326ad',
+                    "id": '3ae2778c-6f6b-4c0f-a42a-02eea3a222ad',
+                    "title": "Dish 1",
+                    "description": "Description 1"
+                },
+            ]
+
+            assert response.json() == {
+                "menu": expected_menu,
+                "submenu": expected_submenu,
+                "dishes_list": expected_dishes_list,
+            }

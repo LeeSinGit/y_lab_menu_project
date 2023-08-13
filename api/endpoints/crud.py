@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 
-from fastapi import HTTPException
+from fastapi import BackgroundTasks, HTTPException
 from fastapi_cache.decorator import cache
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,12 +8,18 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
+from api.cache.invalidation import (background_invalidate_dish_list,
+                                    background_invalidate_menu_list,
+                                    background_invalidate_submenu_list)
+from api.celery2.tasks import send_menu_created_email
 from api.models.models import Dish, Menu, Submenu
 from api.schemas.schemas import (DishesWithID, DishSchema, MenuSchema,
                                  MenuSchemaWithID, SubmenuSchema,
                                  SubmenuSchemaWithID)
 from api.service.service import (get_dish_or_404, get_menu_or_404,
                                  get_submenu_or_404)
+
+background_tasks = BackgroundTasks()
 
 
 @cache(expire=30)
@@ -72,6 +78,8 @@ async def create_menu_func(menu: MenuSchema, db: AsyncSession) -> Menu:
         db.add(new_menu)
         await db.commit()
 
+    send_menu_created_email.delay(menu.title, menu.description)
+    background_tasks.add_task(background_invalidate_menu_list)
     return MenuSchemaWithID(**menu.dict(), id=new_menu.id)
 
 
@@ -99,6 +107,7 @@ async def put_menu(
             current_menu.title = menu.title
             current_menu.description = menu.description
             await db.commit()
+            background_tasks.add_task(background_invalidate_menu_list)
             return current_menu
         else:
             raise HTTPException(status_code=404, detail='menu not found')
@@ -124,6 +133,7 @@ async def delete_menu(menu_id: str, db: AsyncSession):
         if menu_to_delete:
             await db.delete(menu_to_delete)
             await db.commit()
+            background_tasks.add_task(background_invalidate_menu_list)
         else:
             raise HTTPException(status_code=404, detail='menu not found')
 
@@ -205,6 +215,8 @@ async def create_submenu_func(
         db.add(db_submenu)
         await db.commit()
 
+    background_tasks.add_task(background_invalidate_submenu_list)
+
     return SubmenuSchemaWithID(
         **submenu.dict(),
         id=db_submenu.id,
@@ -252,6 +264,8 @@ async def put_submenu(
 
     await db.refresh(current_submenu_to_update)
 
+    background_tasks.add_task(background_invalidate_submenu_list)
+
     return current_submenu_to_update
 
 
@@ -290,6 +304,8 @@ async def delete_submenu(
             current_menu.delete_dishes_count(dish_count)
             await db.delete(current_submenu_to_delete)
             await db.commit()
+
+            background_tasks.add_task(background_invalidate_submenu_list)
 
             return current_submenu_to_delete
         except NoResultFound:
@@ -378,6 +394,8 @@ async def create_dish_func(
         db.add(db_dish)
         await db.commit()
 
+        background_tasks.add_task(background_invalidate_dish_list)
+
         return DishesWithID(
             **dish.dict(),
             id=db_dish.id,
@@ -430,6 +448,8 @@ async def put_dish(
 
     await db.refresh(current_dish_to_update)
 
+    background_tasks.add_task(background_invalidate_dish_list)
+
     return current_dish_to_update
 
 
@@ -469,6 +489,27 @@ async def delete_dish(
 
             await db.delete(current_dish_to_delete)
             await db.commit()
+
+            background_tasks.add_task(background_invalidate_dish_list)
+
             return current_dish_to_delete
         except NoResultFound:
             raise HTTPException(status_code=404, detail='Dish not found')
+
+
+# Получить все объекты
+@cache(expire=30)
+async def get_all_menus_with_submenus_and_dishes_func(db: AsyncSession):
+    stmt = select(Menu)
+    result = await db.execute(stmt)
+    menu = result.scalars().all()
+
+    stmt = select(Submenu)
+    result = await db.execute(stmt)
+    submenu = result.scalars().all()
+
+    current_dishes = select(Dish)
+    result = await db.execute(current_dishes)
+    dishes_list = result.scalars().all()
+
+    return menu, submenu, dishes_list
