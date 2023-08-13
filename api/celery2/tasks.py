@@ -13,7 +13,7 @@ from api.main import app
 
 @celery.task
 def send_menu_created_email(menu_title, menu_description):
-    subject = "Новое меню создано"
+    subject = 'Новое меню создано'
     message = (
         f'Создано новое меню:\nНазвание:'
         f'{menu_title}\nОписание: {menu_description}'

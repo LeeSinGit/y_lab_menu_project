@@ -1,4 +1,3 @@
-
 import uuid
 
 import httpx
@@ -38,7 +37,7 @@ async def before_and_after_test(clear_cache, db=get_db()):
     try:
         db.rollback()
     except Exception as e:
-        print("Error rolling back transaction:", e)
+        print('Error rolling back transaction:', e)
     await clear_cache()
 
 
@@ -411,33 +410,33 @@ class TestMenu:
 
             expected_menu = [
                 {
-                    "id": '1ae2748c-6f3b-4c0f-a32a-09eea3a805ad',
-                    "title": "Menu 1",
-                    "description": "Description 1",
-                    "submenus_count": 2,
-                    "dishes_count": 5
+                    'id': '1ae2748c-6f3b-4c0f-a32a-09eea3a805ad',
+                    'title': 'Menu 1',
+                    'description': 'Description 1',
+                    'submenus_count': 2,
+                    'dishes_count': 5
                 },
             ]
             expected_submenu = [
                 {
-                    "menu_id": '1ae2748c-6f3b-4c0f-a32a-09eea3a805ad',
-                    "id": '2ae2748c-6f3b-4c0f-a32a-02eea3a326ad',
-                    "title": "Submenu 1",
-                    "description": "Description 1",
-                    "dishes_count": 3
+                    'menu_id': '1ae2748c-6f3b-4c0f-a32a-09eea3a805ad',
+                    'id': '2ae2748c-6f3b-4c0f-a32a-02eea3a326ad',
+                    'title': 'Submenu 1',
+                    'description': 'Description 1',
+                    'dishes_count': 3
                 },
             ]
             expected_dishes_list = [
                 {
-                    "submenu_id": '2ae2748c-6f3b-4c0f-a32a-02eea3a326ad',
-                    "id": '3ae2778c-6f6b-4c0f-a42a-02eea3a222ad',
-                    "title": "Dish 1",
-                    "description": "Description 1"
+                    'submenu_id': '2ae2748c-6f3b-4c0f-a32a-02eea3a326ad',
+                    'id': '3ae2778c-6f6b-4c0f-a42a-02eea3a222ad',
+                    'title': 'Dish 1',
+                    'description': 'Description 1'
                 },
             ]
 
             assert response.json() == {
-                "menu": expected_menu,
-                "submenu": expected_submenu,
-                "dishes_list": expected_dishes_list,
+                'menu': expected_menu,
+                'submenu': expected_submenu,
+                'dishes_list': expected_dishes_list,
             }

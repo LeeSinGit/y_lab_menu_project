@@ -8,16 +8,22 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
 
-from api.cache.invalidation import (background_invalidate_dish_list,
-                                    background_invalidate_menu_list,
-                                    background_invalidate_submenu_list)
+from api.cache.invalidation import (
+    background_invalidate_dish_list,
+    background_invalidate_menu_list,
+    background_invalidate_submenu_list,
+)
 from api.celery2.tasks import send_menu_created_email
 from api.models.models import Dish, Menu, Submenu
-from api.schemas.schemas import (DishesWithID, DishSchema, MenuSchema,
-                                 MenuSchemaWithID, SubmenuSchema,
-                                 SubmenuSchemaWithID)
-from api.service.service import (get_dish_or_404, get_menu_or_404,
-                                 get_submenu_or_404)
+from api.schemas.schemas import (
+    DishesWithID,
+    DishSchema,
+    MenuSchema,
+    MenuSchemaWithID,
+    SubmenuSchema,
+    SubmenuSchemaWithID,
+)
+from api.service.service import get_dish_or_404, get_menu_or_404, get_submenu_or_404
 
 background_tasks = BackgroundTasks()
 
@@ -377,9 +383,9 @@ async def create_dish_func(
         current_menu = await get_menu_or_404(api_test_menu_id, db)
 
         current_submenu = await get_submenu_or_404(
-                api_test_submenu_id,
-                db
-            )
+            api_test_submenu_id,
+            db
+        )
 
         current_menu.add_dishes_count(1)
         current_submenu.update_dishes_count(1)

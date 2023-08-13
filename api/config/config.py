@@ -17,8 +17,8 @@ DB_PASS = os.environ.get('DB_PASS')
 
 
 REDIS_HOST = os.environ.get('REDIS_HOST')
-REDIS_PORT = os.environ.get('REDIS_PORT')
-REDIS_DB = os.environ.get('REDIS_DB')
+REDIS_PORT: str | None = os.getenv('REDIS_PORT', '6379')
+REDIS_DB: str | None = os.getenv('REDIS_DB', '0')
 
 
 SMTP_USER = os.environ.get('SMTP_USER')

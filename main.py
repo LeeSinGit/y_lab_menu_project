@@ -13,9 +13,9 @@ app = FastAPI(title='YP Project')
 
 app.include_router(router_operation)
 
-redis_host: str = REDIS_HOST
-redis_port: int = int(REDIS_PORT)
-redis_db: int = int(REDIS_DB)
+redis_host: str = str(REDIS_HOST)
+redis_port: int = int(REDIS_PORT) if REDIS_PORT is not None else 6379
+redis_db: int = int(REDIS_DB) if REDIS_DB is not None else 0
 
 try:
     redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
