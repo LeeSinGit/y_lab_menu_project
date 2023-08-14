@@ -9,3 +9,11 @@ celery = Celery(
 )
 
 celery.autodiscover_tasks(['api.celery2'])
+
+
+celery.conf.beat_schedule = {
+    'run-xlsx-tracking': {
+        'task': 'api.celery2.tasks.run_xlsx_tracking',
+        'schedule': 15.0,
+    },
+}
