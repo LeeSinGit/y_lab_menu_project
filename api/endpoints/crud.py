@@ -32,10 +32,8 @@ background_tasks = BackgroundTasks()
 async def get_menu_list(db: AsyncSession) -> list[Menu]:
     """
     Получить список меню из базы данных.
-
     Параметры:
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - list[Menu]: Список объектов меню.
     """
@@ -50,11 +48,9 @@ async def get_menu_list(db: AsyncSession) -> list[Menu]:
 async def get_menu_by_id(menu_id: str, db: AsyncSession) -> Menu:
     """
     Получить объект меню по его идентификатору.
-
     Параметры:
     - menu_id: str - Идентификатор меню.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Menu: Объект меню.
     """
@@ -66,11 +62,9 @@ async def get_menu_by_id(menu_id: str, db: AsyncSession) -> Menu:
 async def create_menu_func(menu: MenuSchema, db: AsyncSession) -> Menu:
     """
     Создать новое меню и добавить его в базу данных.
-
     Параметры:
     - menu: MenuSchema - Схема данных нового меню.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Menu: Созданный объект меню.
     """
@@ -97,12 +91,10 @@ async def put_menu(
 ) -> Menu:
     """
     Обновить информацию о существующем меню.
-
     Параметры:
     - menu_id: str - Идентификатор меню, которое нужно обновить.
     - menu: MenuSchema - Схема данных для обновления меню.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Menu: Обновленный объект меню.
     """
@@ -123,11 +115,9 @@ async def put_menu(
 async def delete_menu(menu_id: str, db: AsyncSession):
     """
     Удалить меню из базы данных.
-
     Параметры:
     - menu_id: str - Идентификатор меню для удаления.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     - В случае успешного удаления меню, ничего не возвращает.
     - В случае, если меню с заданным
     идентификатором не найдено,
@@ -151,12 +141,10 @@ async def get_list_submenu(
 ) -> list[Submenu]:
     """
     Получить список подменю для заданного меню.
-
     Параметры:
     - api_test_menu_id: UUID - Идентификатор меню,
     для которого нужно получить список подменю.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - list[Submenu]: Список объектов подменю.
     """
@@ -175,12 +163,10 @@ async def get_submenu_by_id(
 ) -> Submenu:
     """
     Получить подменю по его идентификатору.
-
     Параметры:
     - api_test_submenu_id: str | None - Идентификатор подменю,
     которое нужно получить.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Submenu: Объект подменю.
     """
@@ -196,13 +182,11 @@ async def create_submenu_func(
 ) -> Submenu:
     """
     Создать новое подменю и добавить его в базу данных.
-
     Параметры:
     - target_menu_id: str - Идентификатор меню,
     к которому будет привязано подменю.
     - submenu: SubmenuSchema - Схема данных нового подменю.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Submenu: Созданный объект подменю.
     """
@@ -216,7 +200,6 @@ async def create_submenu_func(
             description=submenu.description,
             menu_id=target_menu_id
         )
-
         current_menu.add_submenu_count(1)
         db.add(db_submenu)
         await db.commit()
@@ -239,14 +222,12 @@ async def put_submenu(
 ) -> Submenu:
     """
     Обновить информацию о существующем подменю.
-
     Параметры:
     - api_test_menu_id: str - Идентификатор меню,
     к которому принадлежит подменю.
     - api_test_submenu_id: str - Идентификатор подменю, которое нужно обновить.
     - submenu_update: SubmenuSchema - Схема данных для обновления подменю.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Submenu: Обновленный объект подменю.
     """
@@ -283,13 +264,11 @@ async def delete_submenu(
 ):
     """
     Удалить подменю из базы данных.
-
     Параметры:
     - api_test_menu_id: str - Идентификатор меню,
     к которому принадлежит подменю.
     - api_test_submenu_id: str - Идентификатор подменю для удаления.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     - В случае успешного удаления подменю, ничего не возвращает.
     - В случае, если подменю с
     заданным идентификатором не найдено,
@@ -322,12 +301,10 @@ async def delete_submenu(
 async def get_list_dish(submenu_id: UUID, db: AsyncSession) -> list[Dish]:
     """
     Получить список блюд для заданного подменю.
-
     Параметры:
     - submenu_id: UUID - Идентификатор подменю,
     для которого нужно получить список блюд.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - list[Dish]: Список объектов блюд.
     """
@@ -344,11 +321,9 @@ async def get_list_dish(submenu_id: UUID, db: AsyncSession) -> list[Dish]:
 async def get_dish_by_id(dish_id: str, db: AsyncSession) -> Dish:
     """
     Получить блюдо по его идентификатору.
-
     Параметры:
     - dish_id: str - Идентификатор блюда, которое нужно получить.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Dish: Объект блюда.
     """
@@ -365,7 +340,6 @@ async def create_dish_func(
 ) -> Dish:
     """
     Создать новое блюдо и добавить его в базу данных.
-
     Параметры:
     - api_test_menu_id: str - Идентификатор меню,
     к которому принадлежит подменю.
@@ -373,7 +347,6 @@ async def create_dish_func(
     к которому будет привязано блюдо.
     - dish: DishSchema - Схема данных нового блюда.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Dish: Созданный объект блюда.
     """
@@ -381,7 +354,6 @@ async def create_dish_func(
     async with db.begin():
 
         current_menu = await get_menu_or_404(api_test_menu_id, db)
-
         current_submenu = await get_submenu_or_404(
             api_test_submenu_id,
             db
@@ -411,7 +383,6 @@ async def create_dish_func(
 
 @cache()
 async def put_dish(
-    api_test_menu_id: str,
     api_test_submenu_id: str,
     api_test_dish_id: str,
     dish_update: DishSchema,
@@ -419,7 +390,6 @@ async def put_dish(
 ) -> Dish:
     """
     Обновить информацию о существующем блюде.
-
     Параметры:
     - api_test_menu_id: str - Идентификатор меню,
     к которому принадлежит подменю.
@@ -428,7 +398,6 @@ async def put_dish(
     - api_test_dish_id: str - Идентификатор блюда, которое нужно обновить.
     - dish_update: DishSchema - Схема данных для обновления блюда.
     - db: AsyncSession - Асинхронная сессия базы данных.
-
     Возвращает:
     - Dish: Обновленный объект блюда.
     """
@@ -461,14 +430,12 @@ async def put_dish(
 
 @cache()
 async def delete_dish(
-    api_test_menu_id: str,
     api_test_submenu_id: str,
     api_test_dish_id: str,
     db: Session
 ):
     """
     Удалить блюдо из базы данных.
-
     Параметры:
     - api_test_menu_id: str - Идентификатор меню,
     к которому принадлежит подменю.
@@ -476,7 +443,6 @@ async def delete_dish(
     к которому принадлежит блюдо.
     - api_test_dish_id: str - Идентификатор блюда для удаления.
     - db: Session - Сессия базы данных.
-
     - В случае успешного удаления блюда, ничего не возвращает.
     - В случае, если блюдо с
     заданным идентификатором не найдено,
@@ -484,7 +450,7 @@ async def delete_dish(
     """
 
     async with db.begin():
-        current_menu = await get_menu_or_404(api_test_menu_id, db)
+        current_menu = await get_menu_or_404(api_test_submenu_id, db)
 
         try:
             current_menu.delete_dishes_count(1)

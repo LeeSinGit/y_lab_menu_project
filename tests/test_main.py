@@ -16,7 +16,7 @@ client = TestClient(app)
 
 
 @pytest.fixture(scope='class')
-async def http_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+async def http_client() -> AsyncGenerator[None, None]:
     async with httpx.AsyncClient(
         app=app,
         base_url=BASE_URL
@@ -50,23 +50,29 @@ async def menu_id() -> str:
         'title': f'NEW_TITLE_MENU_PYTEST_{uuid.uuid4()}',
         'description': f'NEW_DESCRIPTION_MENU_PYTEST_{uuid.uuid4()}'
     }
-    async with http_client() as client:
+    async for client in http_client:
         response = await client.post('/api/v1/menus', json=data)
         assert response.status_code == 201
         return response.json()['id']
+
+    return response.json()['id']
 
 
 @pytest.fixture(scope='function')
 async def submenu_id(menu_id) -> str:
     data = {
         'title': f'NEW_TITLE_SUBMENU_PYTEST_{uuid.uuid4()}',
-        'description': f'NEW_DESCRIPTION_SUBMENU_PYTEST_{uuid.uuid4()}',
-        'menu_id': menu_id
+        'description': f'NEW_DESCRIPTION_SUBMENU_PYTEST_{uuid.uuid4()}'
     }
-    async with http_client() as client:
-        response = await client.post('/api/v1/submenus', json=data)
+    async for client in http_client:
+        response = await client.post(
+            f'/api/v1/menus/{menu_id}/submenus/',
+            json=data
+        )
         assert response.status_code == 201
         return response.json()['id']
+
+    return response.json()['id']
 
 
 @pytest.fixture(scope='function')
@@ -86,7 +92,6 @@ async def dish_id(menu_id, submenu_id) -> str:
         assert response.json()['description'] == data['description']
         return response.json()['id']
 
-        # Выход из цикла и возврат значения
     return response.json()['id']
 
 
@@ -262,7 +267,6 @@ class TestMenu:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
         assert dish_id is not None, 'ID блюда не был сохранен'
-
         updated_data = {
             'price': '666',
             'title': f'Updated Test Dish_{uuid.uuid4()}',
