@@ -1,4 +1,5 @@
 import uuid
+from typing import AsyncGenerator
 
 import httpx
 import pytest
@@ -15,7 +16,7 @@ client = TestClient(app)
 
 
 @pytest.fixture(scope='class')
-async def http_client():
+async def http_client() -> AsyncGenerator[httpx.AsyncClient, None]:
     async with httpx.AsyncClient(
         app=app,
         base_url=BASE_URL
@@ -32,7 +33,9 @@ async def clear_cache():
 
 
 @pytest.fixture(autouse=True)
-async def before_and_after_test(clear_cache, db=get_db()):
+async def before_and_after_test(
+    clear_cache, db=get_db()
+) -> AsyncGenerator[None, None]:
     yield
     try:
         db.rollback()
@@ -42,34 +45,32 @@ async def before_and_after_test(clear_cache, db=get_db()):
 
 
 @pytest.fixture(scope='function')
-async def menu_id():
+async def menu_id() -> str:
     data = {
         'title': f'NEW_TITLE_MENU_PYTEST_{uuid.uuid4()}',
         'description': f'NEW_DESCRIPTION_MENU_PYTEST_{uuid.uuid4()}'
     }
-    async for client in http_client:
+    async with http_client() as client:
         response = await client.post('/api/v1/menus', json=data)
         assert response.status_code == 201
         return response.json()['id']
 
 
 @pytest.fixture(scope='function')
-async def submenu_id(menu_id):
+async def submenu_id(menu_id) -> str:
     data = {
         'title': f'NEW_TITLE_SUBMENU_PYTEST_{uuid.uuid4()}',
-        'description': f'NEW_DESCRIPTION_SUBMENU_PYTEST_{uuid.uuid4()}'
+        'description': f'NEW_DESCRIPTION_SUBMENU_PYTEST_{uuid.uuid4()}',
+        'menu_id': menu_id
     }
-    async for client in http_client:
-        response = await client.post(
-            f'/api/v1/menus/{menu_id}/submenus/',
-            json=data
-        )
+    async with http_client() as client:
+        response = await client.post('/api/v1/submenus', json=data)
         assert response.status_code == 201
         return response.json()['id']
 
 
 @pytest.fixture(scope='function')
-async def dish_id(menu_id, submenu_id):
+async def dish_id(menu_id, submenu_id) -> str:
     data = {
         'price': f'3.99_{uuid.uuid4()}',
         'title': f'New Dish Title2_{uuid.uuid4()}',
@@ -85,6 +86,9 @@ async def dish_id(menu_id, submenu_id):
         assert response.json()['description'] == data['description']
         return response.json()['id']
 
+        # Выход из цикла и возврат значения
+    return response.json()['id']
+
 
 class TestMenu:
     base_url = BASE_URL
@@ -93,7 +97,7 @@ class TestMenu:
     # Просматривает список меню
     @pytest.mark.order(1)
     @pytest.mark.asyncio
-    async def test_get_list_menu(self, http_client):
+    async def test_get_list_menu(self, http_client) -> None:
         async for client in http_client:
             response = await client.get(f'/{self.url}')
             assert response.status_code == 200
@@ -104,7 +108,7 @@ class TestMenu:
     # Создает меню
     @pytest.mark.order(2)
     @pytest.mark.asyncio
-    async def test_async_create_menu(self, http_client):
+    async def test_async_create_menu(self, http_client) -> None:
         data = {
             'title': f'NEW_TITLE_MENU_PYTEST_{uuid.uuid4()}',
             'description': f'NEW_DESCRIPTION_MENU_PYTEST_{uuid.uuid4()}'
@@ -126,7 +130,7 @@ class TestMenu:
     # Просматривает список подменю
     @pytest.mark.order(3)
     @pytest.mark.asyncio
-    async def test_get_list_submenu(self, menu_id, http_client):
+    async def test_get_list_submenu(self, menu_id, http_client) -> None:
         async for client in http_client:
             response = await client.get(f'/{self.url}/{menu_id}/submenus')
             assert response.status_code == 200
@@ -137,7 +141,7 @@ class TestMenu:
     # Создать подменю
     @pytest.mark.order(4)
     @pytest.mark.asyncio
-    async def test_create_submenu(self, menu_id, http_client):
+    async def test_create_submenu(self, menu_id, http_client) -> None:
         data = {
             'title': f'NEW_TITLE_SUBMENU_PYTEST_{uuid.uuid4()}',
             'description': f'NEW_DESCRIPTION_SUBMENU_PYTEST_{uuid.uuid4()}'
@@ -157,7 +161,9 @@ class TestMenu:
     # Просматривает список блюд
     @pytest.mark.order(5)
     @pytest.mark.asyncio
-    async def test_get_list_dish(self, menu_id, submenu_id, http_client):
+    async def test_get_list_dish(
+        self, menu_id, submenu_id, http_client
+    ) -> None:
         async for client in http_client:
             response = await client.get(
                 f'/{self.url}/{menu_id}/submenus/{submenu_id}/dishes'
@@ -170,7 +176,7 @@ class TestMenu:
     # Создать блюдо
     @pytest.mark.order(6)
     @pytest.mark.asyncio
-    async def test_create_dish(self, menu_id, submenu_id, http_client):
+    async def test_create_dish(self, menu_id, submenu_id, http_client) -> None:
         data = {
             'price': f'9._{uuid.uuid4()}',
             'title': f'New Dish Title_{uuid.uuid4()}',
@@ -189,7 +195,7 @@ class TestMenu:
     # Обновляет меню
     @pytest.mark.order(7)
     @pytest.mark.asyncio
-    async def test_update_current_menu(self, menu_id, http_client):
+    async def test_update_current_menu(self, menu_id, http_client) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
 
         updated_data = {
@@ -216,7 +222,9 @@ class TestMenu:
     # Обновляет подменю
     @pytest.mark.order(8)
     @pytest.mark.asyncio
-    async def test_update_submenu(self, menu_id, submenu_id, http_client):
+    async def test_update_submenu(
+        self, menu_id, submenu_id, http_client
+    ) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
 
@@ -250,7 +258,7 @@ class TestMenu:
         submenu_id,
         dish_id,
         http_client
-    ):
+    ) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
         assert dish_id is not None, 'ID блюда не был сохранен'
@@ -276,7 +284,7 @@ class TestMenu:
     # Просматривает определенное меню
     @pytest.mark.order(10)
     @pytest.mark.asyncio
-    async def test_get_target_menu(self, menu_id, http_client):
+    async def test_get_target_menu(self, menu_id, http_client) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         async for client in http_client:
             response = await client.get(f'/{self.url}/{menu_id}')
@@ -287,7 +295,7 @@ class TestMenu:
     # Просматривает список меню
     @pytest.mark.order(11)
     @pytest.mark.asyncio
-    async def test_get_list_menu_not_empty(self, http_client):
+    async def test_get_list_menu_not_empty(self, http_client) -> None:
         async for client in http_client:
             response = await client.get(f'/{self.url}')
             assert response.status_code == 200
@@ -298,7 +306,9 @@ class TestMenu:
     # Просматривает определенное подменю
     @pytest.mark.order(12)
     @pytest.mark.asyncio
-    async def test_get_target_submenu(self, menu_id, submenu_id, http_client):
+    async def test_get_target_submenu(
+        self, menu_id, submenu_id, http_client
+    ) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
         async for client in http_client:
@@ -313,7 +323,9 @@ class TestMenu:
     # Просматривает список подменю
     @pytest.mark.order(13)
     @pytest.mark.asyncio
-    async def test_get_list_submenu_not_empty(self, menu_id, http_client):
+    async def test_get_list_submenu_not_empty(
+        self, menu_id, http_client
+    ) -> None:
         async for client in http_client:
             response = await client.get(f'/{self.url}/{menu_id}/submenus')
             assert response.status_code == 200
@@ -330,7 +342,7 @@ class TestMenu:
         submenu_id,
         dish_id,
         http_client
-    ):
+    ) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
         assert dish_id is not None, 'ID блюда не был сохранен'
@@ -352,7 +364,7 @@ class TestMenu:
         submenu_id,
         dish_id,
         http_client
-    ):
+    ) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
         assert dish_id is not None, 'ID блюда не был сохранен'
@@ -372,7 +384,9 @@ class TestMenu:
     # Удалить подменю
     @pytest.mark.order(16)
     @pytest.mark.asyncio
-    async def test_delete_submenu(self, menu_id, submenu_id, http_client):
+    async def test_delete_submenu(
+        self, menu_id, submenu_id, http_client
+    ) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         assert submenu_id is not None, 'ID подменю не был сохранен'
         async for client in http_client:
@@ -389,7 +403,7 @@ class TestMenu:
     # Удаляет созданное меню
     @pytest.mark.order(17)
     @pytest.mark.asyncio
-    async def test_delete_menu(self, menu_id, http_client):
+    async def test_delete_menu(self, menu_id, http_client) -> None:
         assert menu_id is not None, 'ID меню не был сохранен'
         async for client in http_client:
             response = await client.delete(f'/{self.url}/{menu_id}')
@@ -401,7 +415,7 @@ class TestMenu:
     # Тестирует показ всех связанных сущностей
     @pytest.mark.order(18)
     @pytest.mark.asyncio
-    async def test_get_list_all(self, http_client):
+    async def test_get_list_all(self, http_client) -> None:
         async for client in http_client:
             response = await client.get(
                 '/api/v1/menus-with-submenus-and-dishes/'
