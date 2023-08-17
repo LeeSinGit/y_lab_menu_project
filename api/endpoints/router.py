@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
@@ -5,46 +6,22 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from api.data.database import get_db
-from api.endpoints.crud import (
-    create_dish_func,
-    create_menu_func,
-    create_submenu_func,
-    delete_dish,
-    delete_menu,
-    delete_submenu,
-    get_all_menus_with_submenus_and_dishes_func,
-    get_dish_by_id,
-    get_list_dish,
-    get_list_submenu,
-    get_menu_by_id,
-    get_menu_list,
-    get_submenu_by_id,
-    put_dish,
-    put_menu,
-    put_submenu,
-)
+from api.endpoints.crud import (create_dish_func, create_menu_func,
+                                create_submenu_func, delete_dish, delete_menu,
+                                delete_submenu, get_dish_by_id, get_list_dish,
+                                get_list_submenu, get_menu_by_id,
+                                get_menu_list, get_submenu_by_id, put_dish,
+                                put_menu, put_submenu)
 from api.models import models
-from api.schemas.schemas import (
-    CreateDish,
-    CreateMenu,
-    CreateSubMenu,
-    DishesReturn,
-    DishesWithID,
-    DishSchema,
-    MenuSchema,
-    MenuSchemaWithID,
-    SubmenuSchema,
-    SubmenuSchema2,
-    SubmenuSchemaWithID,
-    UpdateDishes,
-    UpdateMenu,
-    UpdateSubmenu,
-)
+from api.schemas.schemas import (CreateDish, CreateMenu, CreateSubMenu,
+                                 DishesReturn, DishesWithID, DishSchema,
+                                 MenuSchema, MenuSchemaWithID, SubmenuSchema,
+                                 SubmenuSchema2, SubmenuSchemaWithID,
+                                 UpdateDishes, UpdateMenu, UpdateSubmenu)
 
 router = APIRouter(prefix='/api/v1', tags=['CRUD'])
 
 
-# Просмотр списка меню
 @router.get(
     '/menus',
     response_model=list[MenuSchema],
@@ -111,7 +88,9 @@ async def update_current_menu(
     summary='Удалить меню',
     response_description='Удалить уже имеющееся в базе данных меню'
 )
-async def delete_current_menu(menu_id: str, db: Session = Depends(get_db)):
+async def delete_current_menu(
+    menu_id: str, db: Session = Depends(get_db)
+) -> Dict[str, Any]:
     await delete_menu(menu_id, db)
 
 
@@ -204,7 +183,7 @@ async def delete_current_submenu(
     api_test_menu_id: str,
     api_test_submenu_id: str,
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     await delete_submenu(api_test_menu_id, api_test_submenu_id, db)
 
 
@@ -308,18 +287,10 @@ async def delete_current_dish(
     api_test_submenu_id: str,
     api_test_dish_id: str,
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     await delete_dish(
         api_test_menu_id,
         api_test_submenu_id,
         api_test_dish_id,
         db
     )
-
-
-@router.get('/menus-with-submenus-and-dishes/')
-async def get_all_menus_with_submenus_and_dishes(
-    db: Session = Depends(get_db)
-):
-    menus = await get_all_menus_with_submenus_and_dishes_func(db)
-    return menus
